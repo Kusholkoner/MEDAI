@@ -807,10 +807,19 @@ function switchAccount() {
 }
 
 function logout() {
-    const confirm = window.confirm('Are you sure you want to logout?');
-    if (confirm) {
+    const confirmLogout = window.confirm('Are you sure you want to logout?');
+    if (confirmLogout) {
+        // Clear authentication token
         localStorage.removeItem('auth_token');
         authToken = null;
+
+        // Clear any other user-specific data
+        // (You can add more items to clear if needed)
+
+        // Show logout message
+        console.log('User logged out successfully');
+
+        // Redirect to login page
         window.location.href = 'index.html';
     }
 }
