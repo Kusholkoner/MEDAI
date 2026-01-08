@@ -556,6 +556,10 @@ class MedicineReminder:
     def add_reminder(self, user_email: str, reminder: Dict):
         """Add medicine reminder to Supabase database"""
         try:
+            # First, ensure the user exists (auto-create if needed)
+            self._ensure_user_exists(user_email)
+            
+            # Now insert the reminder
             self.supabase.table('medicine_reminders').insert({
                 'user_email': user_email,
                 **reminder
@@ -565,6 +569,30 @@ class MedicineReminder:
         except Exception as e:
             logger.error("Failed to add reminder", error=str(e))
             raise
+    
+    def _ensure_user_exists(self, user_email: str):
+        """Ensure user exists in database, create if not"""
+        try:
+            # Check if user exists
+            response = self.supabase.table('users').select('email').eq('email', user_email).execute()
+            
+            if not response.data or len(response.data) == 0:
+                # User doesn't exist, create them
+                import datetime
+                username = user_email.split('@')[0]
+                user_data = {
+                    'email': user_email,
+                    'name': f'User {username.capitalize()}',
+                    'phone': f'98765{hash(user_email) % 100000:05d}',
+                    'user_type': 'patient',
+                    'registered_on': datetime.datetime.now().isoformat(),
+                    'login_count': 0
+                }
+                self.supabase.table('users').insert(user_data).execute()
+                logger.info("Auto-created user", email=user_email)
+        except Exception as e:
+            logger.error("Failed to ensure user exists", error=str(e))
+            # Don't raise - let the original insert attempt proceed
 
     def get_reminders(self, user_email: str) -> List[Dict]:
         """Get medicine reminders from Supabase database"""
@@ -618,6 +646,10 @@ class HealthMonitor:
     def add_record(self, user_email: str, record: Dict):
         """Add health record to Supabase database"""
         try:
+            # First, ensure the user exists (auto-create if needed)
+            self._ensure_user_exists(user_email)
+            
+            # Now insert the health record
             self.supabase.table('health_records').insert({
                 'user_email': user_email,
                 **record
@@ -627,6 +659,30 @@ class HealthMonitor:
         except Exception as e:
             logger.error("Failed to add health record", error=str(e))
             raise
+    
+    def _ensure_user_exists(self, user_email: str):
+        """Ensure user exists in database, create if not"""
+        try:
+            # Check if user exists
+            response = self.supabase.table('users').select('email').eq('email', user_email).execute()
+            
+            if not response.data or len(response.data) == 0:
+                # User doesn't exist, create them
+                import datetime
+                username = user_email.split('@')[0]
+                user_data = {
+                    'email': user_email,
+                    'name': f'User {username.capitalize()}',
+                    'phone': f'98765{hash(user_email) % 100000:05d}',
+                    'user_type': 'patient',
+                    'registered_on': datetime.datetime.now().isoformat(),
+                    'login_count': 0
+                }
+                self.supabase.table('users').insert(user_data).execute()
+                logger.info("Auto-created user", email=user_email)
+        except Exception as e:
+            logger.error("Failed to ensure user exists", error=str(e))
+            # Don't raise - let the original insert attempt proceed
 
     def get_history(self, user_email: str) -> List[Dict]:
         """Get health records from Supabase database"""
