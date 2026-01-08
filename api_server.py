@@ -51,22 +51,22 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 @app.get("/", response_class=FileResponse)
 async def serve_index():
     """Serve the login page"""
-    return FileResponse(os.path.join(BASE_DIR, "index.html"))
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "pages", "index.html"))
 
 @app.get("/dashboard.html", response_class=FileResponse)
 async def serve_dashboard():
     """Serve the dashboard page"""
-    return FileResponse(os.path.join(BASE_DIR, "dashboard.html"))
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "pages", "dashboard.html"))
 
-@app.get("/script.js", response_class=FileResponse)
+@app.get("/assets/js/script.js", response_class=FileResponse)
 async def serve_script():
     """Serve JavaScript file"""
-    return FileResponse(os.path.join(BASE_DIR, "script.js"))
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "assets", "js", "script.js"))
 
-@app.get("/styles.css", response_class=FileResponse)
+@app.get("/assets/css/styles.css", response_class=FileResponse)
 async def serve_styles():
     """Serve CSS file"""
-    return FileResponse(os.path.join(BASE_DIR, "styles.css"))
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "assets", "css", "styles.css"))
 
 # Initialize system components
 medical_system = MedicalDiagnosisSystem()
