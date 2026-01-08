@@ -25,7 +25,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'debug.log')
 os.makedirs(LOG_DIR, exist_ok=True)
 
 # Configuration
-GOOGLE_API_KEY = 'AIzaSyApWrQcHPHh-mR_7fbWzRGW417L0Rn9r8M'
+GOOGLE_API_KEY = 'GOOGLE_API_KEY'
 SUPABASE_URL = 'YOUR_SUPABASE_URL'
 # If you scaffolded API:
 SUPABASE_KEY = 'YOUR_SUPABASE_KEY'
