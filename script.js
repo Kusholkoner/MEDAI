@@ -3,8 +3,10 @@
 // Connected to backend API server
 // ============================================
 
-// API Configuration
-const API_BASE_URL = 'http://localhost:8000/api';
+// API Configuration - Auto-detect environment
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000/api'  // Local development
+    : `${window.location.origin}/api`;  // Production (same domain as frontend)
 
 // Authentication token storage
 let authToken = localStorage.getItem('auth_token');

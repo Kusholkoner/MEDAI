@@ -24,11 +24,11 @@ LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.cursor')
 LOG_FILE = os.path.join(LOG_DIR, 'debug.log')
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# Configuration
-GOOGLE_API_KEY = 'GOOGLE_API_KEY'
-SUPABASE_URL = 'YOUR_SUPABASE_URL'
-# If you scaffolded API:
-SUPABASE_KEY = 'YOUR_SUPABASE_KEY'
+# Configuration - All sensitive data from environment variables
+# DO NOT hardcode API keys here - they should be in .env file or Render environment variables
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', '')
+SUPABASE_URL = os.getenv('SUPABASE_URL', '')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
 
 # Initialize Supabase
 from dotenv import load_dotenv
@@ -62,7 +62,7 @@ try:
         f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"B","location":"main.py:78","message":"Supabase credentials check","data":{"url_from_env":os.getenv("SUPABASE_URL") is not None,"key_from_env":os.getenv("SUPABASE_KEY") is not None,"url_is_placeholder":supabase_url=='YOUR_SUPABASE_URL',"key_is_placeholder":supabase_key=='YOUR_SUPABASE_KEY'},"timestamp":int(time.time()*1000)})+'\n')
     # #endregion
     
-    if supabase_url and supabase_key and supabase_url != 'YOUR_SUPABASE_URL' and supabase_key != 'YOUR_SUPABASE_KEY':
+    if supabase_url and supabase_key and supabase_url != 'YOUR_SUPABASE_URL' and supabase_key != 'YOUR_SUPABASE_KEY' and supabase_url.strip() and supabase_key.strip():
         supabase: Client = create_client(supabase_url, supabase_key)
         # #region agent log
         with open(LOG_FILE, 'a', encoding='utf-8') as f:
@@ -125,7 +125,16 @@ GEMINI_AVAILABLE = False
 model = None
 try:
     import google.generativeai as genai
-    genai.configure(api_key=GOOGLE_API_KEY)
+    
+    # Get API key from environment variable
+    google_api_key = os.getenv('GOOGLE_API_KEY', '')
+    
+    if not google_api_key:
+        print("⚠️ GOOGLE_API_KEY not found in environment variables")
+        print("💡 AI-powered diagnosis will not be available")
+        raise ValueError("GOOGLE_API_KEY not configured")
+    
+    genai.configure(api_key=google_api_key)
 
     # Try a list of likely-supported model identifiers until one works
     candidate_models = [

@@ -6,6 +6,8 @@ FastAPI server that wraps main.py functionality and provides REST endpoints
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
@@ -41,6 +43,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Get the directory where api_server.py is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Serve static HTML files
+@app.get("/", response_class=FileResponse)
+async def serve_index():
+    """Serve the login page"""
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
+
+@app.get("/dashboard.html", response_class=FileResponse)
+async def serve_dashboard():
+    """Serve the dashboard page"""
+    return FileResponse(os.path.join(BASE_DIR, "dashboard.html"))
+
+@app.get("/script.js", response_class=FileResponse)
+async def serve_script():
+    """Serve JavaScript file"""
+    return FileResponse(os.path.join(BASE_DIR, "script.js"))
+
+@app.get("/styles.css", response_class=FileResponse)
+async def serve_styles():
+    """Serve CSS file"""
+    return FileResponse(os.path.join(BASE_DIR, "styles.css"))
 
 # Initialize system components
 medical_system = MedicalDiagnosisSystem()
@@ -146,8 +172,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
 # API Endpoints
 # ============================================
 
-@app.get("/")
-async def root():
+@app.get("/api")
+async def api_root():
     """API root endpoint"""
     return {
         "message": "Medical Diagnosis System API",

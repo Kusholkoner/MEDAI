@@ -8,5 +8,5 @@ google-generativeai
 fastapi
 uvicorn[standard]
 pydantic
-qrcode
-
+pydantic-settings
+python-multipart
