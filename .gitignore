@@ -1,0 +1,9 @@
+# .gitignore
+.env
+*.pyc
+__pycache__/
+.cursor/
+.venv/
+users_data.json
+medicine_reminders.json
+health_records.json

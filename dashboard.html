@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Diagnosis System - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <svg width="40" height="40" viewBox="0 0 60 60" fill="none">
+                    <rect width="60" height="60" rx="12" fill="url(#gradient)" />
+                    <path d="M30 15V45M15 30H45" stroke="white" stroke-width="4" stroke-linecap="round" />
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="60" y2="60">
+                            <stop offset="0%" stop-color="#667eea" />
+                            <stop offset="100%" stop-color="#764ba2" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h2>MedAI</h2>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-section="dashboard">
+                            <span class="nav-icon">🏠</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="diagnosis">
+                            <span class="nav-icon">🩺</span>
+                            <span>Symptom Diagnosis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="symptoms">
+                            <span class="nav-icon">📋</span>
+                            <span>Available Symptoms</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="doctors">
+                            <span class="nav-icon">👨‍⚕️</span>
+                            <span>Search Doctors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="appointments">
+                            <span class="nav-icon">📅</span>
+                            <span>Book Appointment</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="reminders">
+                            <span class="nav-icon">💊</span>
+                            <span>Medicine Reminders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="health">
+                            <span class="nav-icon">📊</span>
+                            <span>Health Monitoring</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="history">
+                            <span class="nav-icon">📚</span>
+                            <span>Diagnosis History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="emergency">
+                            <span class="nav-icon">🚨</span>
+                            <span>Emergency Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="account">
+                            <span class="nav-icon">👤</span>
+                            <span>Account</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-section="statistics">
+                            <span class="nav-icon">📈</span>
+                            <span>Statistics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <h2 id="currentSectionTitle">Dashboard</h2>
+                </div>
+                <div class="top-bar-right">
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle">
+                        <span class="theme-toggle-label">Dark</span>
+                        <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
+                            <span class="theme-toggle-slider">
+                                <span class="theme-toggle-icon">🌙</span>
+                            </span>
+                        </button>
+                        <span class="theme-toggle-label">Light</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-details">
+                            <h3 id="userName">User</h3>
+                            <p id="userEmail">user@example.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="section active">
+                    <div class="section-header">
+                        <h1>Welcome to Your Health Dashboard</h1>
+                        <p>Your comprehensive medical diagnosis and health management platform</p>
+                    </div>
+
+                    <div class="grid grid-4">
+                        <div class="stat-card">
+                            <div class="stat-icon">🩺</div>
+                            <div class="stat-value" id="totalDiagnoses">0</div>
+                            <div class="stat-label">Total Diagnoses</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-value" id="totalAppointments">0</div>
+                            <div class="stat-label">Appointments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💊</div>
+                            <div class="stat-value" id="totalReminders">0</div>
+                            <div class="stat-label">Active Reminders</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-value" id="totalHealthRecords">0</div>
+                            <div class="stat-label">Health Records</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2 mt-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Quick Actions</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="flex" style="flex-direction: column; gap: 1rem;">
+                                    <button class="btn btn-primary" onclick="navigateToSection('diagnosis')">
+                                        🩺 Start Diagnosis
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="navigateToSection('doctors')">
+                                        👨‍⚕️ Find Doctors
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="navigateToSection('appointments')">
+                                        📅 Book Appointment
+                                    </button>
+                                    <button class="btn btn-danger" onclick="navigateToSection('emergency')">
+                                        🚨 Emergency Services
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Recent Activity</h3>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list" id="recentActivity">
+                                    <li class="list-item">No recent activity</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Symptom Diagnosis Section -->
+                <section id="diagnosis" class="section">
+                    <div class="section-header">
+                        <h1>AI-Powered Symptom Diagnosis</h1>
+                        <p>Enter your symptoms to get an AI-powered diagnosis</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Enter Symptoms</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="diagnosisForm">
+                                <div class="form-group">
+                                    <label for="symptomsInput">Symptoms (comma-separated)</label>
+                                    <input type="text" id="symptomsInput"
+                                        placeholder="e.g., fever, cough, headache, fatigue" required>
+                                    <p class="text-muted mt-1">Enter your symptoms separated by commas</p>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Analyze Symptoms</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="diagnosisResult" class="card" style="display: none;">
+                        <div class="card-header">
+                            <h3 class="card-title">Diagnosis Result</h3>
+                        </div>
+                        <div class="card-body" id="diagnosisResultContent">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Available Symptoms Section -->
+                <section id="symptoms" class="section">
+                    <div class="section-header">
+                        <h1>Available Symptoms Database</h1>
+                        <p>Browse all symptoms in our medical database</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Symptom List</h3>
+                            <input type="text" id="symptomSearch" placeholder="Search symptoms..."
+                                style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-glass); color: var(--text-primary);">
+                        </div>
+                        <div class="card-body">
+                            <div class="grid grid-3" id="symptomsList">
+                                <!-- Symptoms will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Search Doctors Section -->
+                <section id="doctors" class="section">
+                    <div class="section-header">
+                        <h1>Search Doctors</h1>
+                        <p>Find qualified healthcare professionals</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Search Filters</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid grid-3">
+                                <div class="form-group">
+                                    <label for="specializationFilter">Specialization</label>
+                                    <input type="text" id="specializationFilter" placeholder="e.g., Cardiology">
+                                </div>
+                                <div class="form-group">
+                                    <label>Emergency Available</label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" id="emergencyFilter">
+                                        <span>Show only emergency doctors</span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button class="btn btn-primary" onclick="searchDoctors()">Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="doctorResults" class="grid grid-2">
+                        <!-- Doctor cards will be populated here -->
+                    </div>
+                </section>
+
+                <!-- Book Appointment Section -->
+                <section id="appointments" class="section">
+                    <div class="section-header">
+                        <h1>Book Appointment</h1>
+                        <p>Schedule a consultation with our doctors</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Appointment Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="appointmentForm">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="aptAge">Age</label>
+                                        <input type="number" id="aptAge" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="aptSymptoms">Symptoms (brief)</label>
+                                        <input type="text" id="aptSymptoms" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="aptDoctor">Select Doctor</label>
+                                    <select id="aptDoctor" required
+                                        style="width: 100%; padding: 0.875rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                                        <option value="">Choose a doctor...</option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="aptDate">Appointment Date</label>
+                                        <input type="date" id="aptDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="aptTime">Preferred Time</label>
+                                        <input type="time" id="aptTime" required>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Book Appointment</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Your Appointments</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="appointmentsList">
+                                <p class="text-muted">No appointments booked yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Medicine Reminders Section -->
+                <section id="reminders" class="section">
+                    <div class="section-header">
+                        <h1>Medicine Reminders</h1>
+                        <p>Never miss a dose with smart medication tracking</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Add New Reminder</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="reminderForm">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="medicineName">Medicine Name</label>
+                                        <input type="text" id="medicineName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dosage">Dosage</label>
+                                        <input type="text" id="dosage" placeholder="e.g., 1 tablet" required>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label for="reminderTime">Time (24h)</label>
+                                        <input type="time" id="reminderTime" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="startDate">Start Date</label>
+                                        <input type="date" id="startDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endDate">End Date (optional)</label>
+                                        <input type="date" id="endDate">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="reminderNotes">Notes (optional)</label>
+                                    <input type="text" id="reminderNotes" placeholder="Additional instructions">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Add Reminder</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Active Reminders</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="remindersList">
+                                <p class="text-muted">No reminders set yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Health Monitoring Section -->
+                <section id="health" class="section">
+                    <div class="section-header">
+                        <h1>Health Monitoring</h1>
+                        <p>Track your vitals and health metrics over time</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Add Health Record</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="healthRecordForm">
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label for="recordDate">Date</label>
+                                        <input type="date" id="recordDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bloodPressure">Blood Pressure</label>
+                                        <input type="text" id="bloodPressure" placeholder="e.g., 120/80">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="heartRate">Heart Rate (bpm)</label>
+                                        <input type="number" id="heartRate" placeholder="e.g., 72">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label for="sugarLevel">Sugar Level (mg/dL)</label>
+                                        <input type="number" id="sugarLevel" placeholder="e.g., 100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="weight">Weight (kg)</label>
+                                        <input type="number" step="0.1" id="weight" placeholder="e.g., 70.5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="temperature">Temperature (°C)</label>
+                                        <input type="number" step="0.1" id="temperature" placeholder="e.g., 37.0">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Add Record</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Health History</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="healthRecordsList">
+                                <p class="text-muted">No health records yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Heart Rate Trend</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="heartRateChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Diagnosis History Section -->
+                <section id="history" class="section">
+                    <div class="section-header">
+                        <h1>Diagnosis History</h1>
+                        <p>View your past diagnoses and consultations</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Past Diagnoses</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="diagnosisHistoryList">
+                                <p class="text-muted">No diagnosis history yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Emergency Services Section -->
+                <section id="emergency" class="section">
+                    <div class="section-header">
+                        <h1>🚨 Emergency Services</h1>
+                        <p>Quick access to emergency healthcare services</p>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <strong>⚠️ For Life-Threatening Emergencies:</strong> Call 112 or 108 immediately
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Emergency Contacts</h3>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list">
+                                    <li class="list-item">
+                                        <strong>Emergency (General):</strong> 112
+                                    </li>
+                                    <li class="list-item">
+                                        <strong>Ambulance:</strong> 108 / 102
+                                    </li>
+                                    <li class="list-item">
+                                        <strong>Police:</strong> 100
+                                    </li>
+                                    <li class="list-item">
+                                        <strong>Fire:</strong> 101
+                                    </li>
+                                    <li class="list-item">
+                                        <strong>Women Helpline:</strong> 1091
+                                    </li>
+                                    <li class="list-item">
+                                        <strong>Child Helpline:</strong> 1098
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Quick Actions</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="flex" style="flex-direction: column; gap: 1rem;">
+                                    <button class="btn btn-danger" onclick="findNearbyHospitals()">
+                                        🏥 Find Nearest Hospital
+                                    </button>
+                                    <button class="btn btn-warning" onclick="bookEmergencyAppointment()">
+                                        📅 Book Emergency Appointment
+                                    </button>
+                                    <button class="btn btn-info" onclick="emergencySymptomCheck()">
+                                        🩺 Emergency Symptom Check
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hospital Locator</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="locationInput">Your Location</label>
+                                <input type="text" id="locationInput" placeholder="e.g., Nanded, Maharashtra"
+                                    value="Nanded, Maharashtra, India">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergencyType">Emergency Type</label>
+                                <select id="emergencyType"
+                                    style="width: 100%; padding: 0.875rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">General Emergency</option>
+                                    <option value="cardiac">Cardiac/Heart Emergency</option>
+                                    <option value="trauma">Trauma/Accident</option>
+                                    <option value="emergency">Emergency Room</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="findNearbyHospitals()">
+                                🗺️ Open in Google Maps
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Account Section -->
+                <section id="account" class="section">
+                    <div class="section-header">
+                        <h1>Account Management</h1>
+                        <p>Manage your profile and account settings</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Profile Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="profileForm">
+                                <div class="form-group">
+                                    <label for="profileName">Full Name</label>
+                                    <input type="text" id="profileName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profileEmail">Email Address</label>
+                                    <input type="email" id="profileEmail" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profilePhone">Phone Number</label>
+                                    <input type="tel" id="profilePhone" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Profile</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Account Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex" style="flex-direction: column; gap: 1rem;">
+                                <button class="btn btn-secondary" onclick="switchAccount()">
+                                    🔄 Switch Account
+                                </button>
+                                <button class="btn btn-danger" onclick="logout()">
+                                    👋 Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Statistics Section -->
+                <section id="statistics" class="section">
+                    <div class="section-header">
+                        <h1>System Statistics</h1>
+                        <p>Overview of platform usage and metrics</p>
+                    </div>
+
+                    <div class="grid grid-4">
+                        <div class="stat-card">
+                            <div class="stat-icon">🏥</div>
+                            <div class="stat-value" id="statDiseases">7</div>
+                            <div class="stat-label">Total Diseases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📋</div>
+                            <div class="stat-value" id="statSymptoms">35</div>
+                            <div class="stat-label">Total Symptoms</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👨‍⚕️</div>
+                            <div class="stat-value" id="statDoctors">0</div>
+                            <div class="stat-label">Available Doctors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🚨</div>
+                            <div class="stat-value" id="statEmergency">3</div>
+                            <div class="stat-label">Emergency Conditions</div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3 class="card-title">User Statistics</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Value</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Registered Users</td>
+                                        <td id="statTotalUsers">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Your Login Count</td>
+                                        <td id="statLoginCount">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Login</td>
+                                        <td id="statLastLogin">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Account Created</td>
+                                        <td id="statRegistered">-</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Theme Toggle Functionality
+        (function () {
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+
+            if (!themeToggle) return;
+
+            // Update toggle position based on theme
+            function updateToggleIcon() {
+                const currentTheme = html.getAttribute('data-theme') || 'dark';
+                const icon = themeToggle.querySelector('.theme-toggle-icon');
+                if (icon) {
+                    icon.textContent = currentTheme === 'light' ? '☀️' : '🌙';
+                }
+                // Update labels
+                const labels = document.querySelectorAll('.theme-toggle-label');
+                labels.forEach((label, index) => {
+                    if (currentTheme === 'light') {
+                        label.textContent = index === 0 ? 'Light' : 'Dark';
+                    } else {
+                        label.textContent = index === 0 ? 'Dark' : 'Light';
+                    }
+                });
+            }
+
+            // Get saved theme or default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            html.setAttribute('data-theme', savedTheme);
+            updateToggleIcon();
+
+            // Toggle theme
+            themeToggle.addEventListener('click', function () {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+
+                updateToggleIcon();
+            });
+        })();
+    </script>
+</body>
+
+</html>

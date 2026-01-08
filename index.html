@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Diagnosis System - Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="login-page">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <span class="theme-toggle-label">Dark</span>
+        <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
+            <span class="theme-toggle-slider">
+                <span class="theme-toggle-icon">🌙</span>
+            </span>
+        </button>
+        <span class="theme-toggle-label">Light</span>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="60" height="60" rx="12" fill="url(#gradient)" />
+                        <path d="M30 15V45M15 30H45" stroke="white" stroke-width="4" stroke-linecap="round" />
+                        <defs>
+                            <linearGradient id="gradient" x1="0" y1="0" x2="60" y2="60">
+                                <stop offset="0%" stop-color="#667eea" />
+                                <stop offset="100%" stop-color="#764ba2" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>Medical Diagnosis System</h1>
+                <p class="subtitle">AI-Powered Healthcare at Your Fingertips</p>
+            </div>
+
+            <div class="login-form-container">
+                <div id="loginView">
+                    <h2>Welcome Back</h2>
+                    <p class="form-description">Sign in to access your health dashboard</p>
+
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" placeholder="your.email@example.com" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path
+                                    d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z"
+                                    fill="#4285F4" />
+                                <path
+                                    d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z"
+                                    fill="#34A853" />
+                                <path
+                                    d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z"
+                                    fill="#FBBC05" />
+                                <path
+                                    d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z"
+                                    fill="#EA4335" />
+                            </svg>
+                            Continue with Google
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <button class="btn btn-secondary btn-large" onclick="showRegisterView()">
+                        Create New Account
+                    </button>
+                </div>
+
+                <div id="registerView" style="display: none;">
+                    <h2>Create Account</h2>
+                    <p class="form-description">Join us to start your health journey</p>
+
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="registerEmail">Email Address</label>
+                            <input type="email" id="registerEmail" placeholder="your.email@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" id="registerName" placeholder="John Doe" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registerPhone">Phone Number</label>
+                            <input type="tel" id="registerPhone" placeholder="+91 98765 43210" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path
+                                    d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z"
+                                    fill="#4285F4" />
+                                <path
+                                    d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z"
+                                    fill="#34A853" />
+                                <path
+                                    d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z"
+                                    fill="#FBBC05" />
+                                <path
+                                    d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z"
+                                    fill="#EA4335" />
+                            </svg>
+                            Register with Google
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <button class="btn btn-secondary btn-large" onclick="showLoginView()">
+                        Back to Login
+                    </button>
+                </div>
+            </div>
+
+            <div class="login-footer">
+                <p>🔒 Secure authentication powered by Google OAuth</p>
+                <p class="disclaimer">This is a simulation for demonstration purposes</p>
+            </div>
+        </div>
+
+        <div class="features-panel">
+            <h3>Why Choose Our Platform?</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🩺</div>
+                    <div class="feature-content">
+                        <h4>AI-Powered Diagnosis</h4>
+                        <p>Get instant symptom analysis powered by advanced machine learning</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">👨‍⚕️</div>
+                    <div class="feature-content">
+                        <h4>Expert Doctors</h4>
+                        <p>Connect with qualified healthcare professionals instantly</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🚨</div>
+                    <div class="feature-content">
+                        <h4>Emergency Services</h4>
+                        <p>24/7 emergency support and hospital locator</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💊</div>
+                    <div class="feature-content">
+                        <h4>Medicine Reminders</h4>
+                        <p>Never miss a dose with smart medication tracking</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-content">
+                        <h4>Health Monitoring</h4>
+                        <p>Track your vitals and health metrics over time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Theme Toggle Functionality
+        (function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            
+            if (!themeToggle) return;
+            
+            // Update toggle position based on theme
+            function updateToggleIcon() {
+                const currentTheme = html.getAttribute('data-theme') || 'dark';
+                const icon = themeToggle.querySelector('.theme-toggle-icon');
+                if (icon) {
+                    icon.textContent = currentTheme === 'light' ? '☀️' : '🌙';
+                }
+                // Update labels
+                const labels = document.querySelectorAll('.theme-toggle-label');
+                labels.forEach((label, index) => {
+                    if (currentTheme === 'light') {
+                        label.textContent = index === 0 ? 'Light' : 'Dark';
+                    } else {
+                        label.textContent = index === 0 ? 'Dark' : 'Light';
+                    }
+                });
+            }
+            
+            // Get saved theme or default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            html.setAttribute('data-theme', savedTheme);
+            updateToggleIcon();
+            
+            // Toggle theme
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                updateToggleIcon();
+            });
+        })();
+        
+        // Note: `API_BASE_URL` is defined in `script.js` to avoid duplicate declarations
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Login failed');
+                }
+
+                const data = await response.json();
+
+                // Store auth token
+                localStorage.setItem('auth_token', data.access_token);
+
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                if (error.message.includes('not found')) {
+                    alert('Account not found. Please register first.');
+                    showRegisterView();
+                    document.getElementById('registerEmail').value = email;
+                } else {
+                    alert('Login failed: ' + error.message);
+                }
+            }
+        });
+
+        // Register form handler
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const name = document.getElementById('registerName').value;
+            const phone = document.getElementById('registerPhone').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name,
+                        phone: phone
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Registration failed');
+                }
+
+                const userData = await response.json();
+
+                // Auto-login after registration
+                const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const loginData = await loginResponse.json();
+                localStorage.setItem('auth_token', loginData.access_token);
+
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                if (error.message.includes('already exists')) {
+                    alert('Account already exists. Please login.');
+                    showLoginView();
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    alert('Registration failed: ' + error.message);
+                }
+            }
+        });
+
+        function showLoginView() {
+            document.getElementById('loginView').style.display = 'block';
+            document.getElementById('registerView').style.display = 'none';
+        }
+
+        function showRegisterView() {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('registerView').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
