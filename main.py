@@ -24,11 +24,11 @@ LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.cursor')
 LOG_FILE = os.path.join(LOG_DIR, 'debug.log')
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# Configuration - All sensitive data from environment variables
-# DO NOT hardcode API keys here - they should be in .env file or Render environment variables
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', '')
-SUPABASE_URL = os.getenv('SUPABASE_URL', '')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
+# Configuration
+GOOGLE_API_KEY = 'AIzaSyApWrQcHPHh-mR_7fbWzRGW417L0Rn9r8M'
+SUPABASE_URL = 'YOUR_SUPABASE_URL'
+# If you scaffolded API:
+SUPABASE_KEY = 'YOUR_SUPABASE_KEY'
 
 # Initialize Supabase
 from dotenv import load_dotenv
