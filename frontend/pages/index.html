@@ -50,6 +50,12 @@
                             <input type="email" id="loginEmail" placeholder="your.email@example.com" required>
                         </div>
 
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required
+                                minlength="6">
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-large">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path
@@ -96,6 +102,18 @@
                         <div class="form-group">
                             <label for="registerPhone">Phone Number</label>
                             <input type="tel" id="registerPhone" placeholder="+91 98765 43210" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword"
+                                placeholder="Create a password (min 6 characters)" required minlength="6">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registerConfirmPassword">Confirm Password</label>
+                            <input type="password" id="registerConfirmPassword" placeholder="Confirm your password"
+                                required minlength="6">
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-large">
@@ -225,6 +243,7 @@
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
             try {
                 const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -232,7 +251,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email: email })
+                    body: JSON.stringify({ email: email, password: password })
                 });
 
                 if (!response.ok) {
@@ -265,6 +284,14 @@
             const email = document.getElementById('registerEmail').value;
             const name = document.getElementById('registerName').value;
             const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
 
             try {
                 const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -275,7 +302,8 @@
                     body: JSON.stringify({
                         email: email,
                         name: name,
-                        phone: phone
+                        phone: phone,
+                        password: password
                     })
                 });
 
@@ -292,7 +320,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email: email })
+                    body: JSON.stringify({ email: email, password: password })
                 });
 
                 const loginData = await loginResponse.json();

@@ -82,9 +82,11 @@ class UserRegister(BaseModel):
     email: EmailStr
     name: str
     phone: str
+    password: str
 
 class UserLogin(BaseModel):
     email: EmailStr
+    password: str
 
 class UserResponse(BaseModel):
     email: str
@@ -205,11 +207,16 @@ async def register(user: UserRegister):
                 detail="User already exists"
             )
         
+        # Hash password
+        import bcrypt
+        password_hash = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
         # Create user
         user_data = {
             'email': user.email,
             'name': user.name,
             'phone': user.phone,
+            'password_hash': password_hash,
             'user_type': 'patient',
             'registered_on': datetime.now().isoformat(),
             'login_count': 1,
@@ -230,7 +237,9 @@ async def register(user: UserRegister):
         
         logger.info("User registered", email=user.email)
         
-        return user_data
+        # Return user data without password hash
+        response_data = {k: v for k, v in user_data.items() if k != 'password_hash'}
+        return response_data
         
     except Exception as e:
         logger.error("Registration failed", error=str(e))
@@ -253,6 +262,15 @@ async def login(user: UserLogin):
         # Get user data
         user_data = medical_system.auth_system.users[user.email]
         
+        # Verify password
+        import bcrypt
+        stored_hash = user_data.get('password_hash', '').encode('utf-8')
+        if not stored_hash or not bcrypt.checkpw(user.password.encode('utf-8'), stored_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect password"
+            )
+        
         # Update login count
         user_data['login_count'] = user_data.get('login_count', 0) + 1
         user_data['last_login'] = datetime.now().isoformat()
@@ -269,10 +287,11 @@ async def login(user: UserLogin):
         logger.info("User logged in", email=user.email)
         
         # Return user data and token (token = email for simplicity)
+        response_data = {k: v for k, v in user_data.items() if k != 'password_hash'}
         return {
             "access_token": user.email,
             "token_type": "bearer",
-            "user": user_data
+            "user": response_data
         }
         
     except HTTPException:
