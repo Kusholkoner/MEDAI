@@ -52,8 +52,13 @@
 
                         <div class="form-group">
                             <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" placeholder="Enter your password" required
-                                minlength="6">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="loginPassword" placeholder="Enter your password" required
+                                    minlength="6">
+                                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')" aria-label="Toggle password visibility">
+                                    <span class="password-toggle-icon">👁️</span>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-large">
@@ -106,14 +111,24 @@
 
                         <div class="form-group">
                             <label for="registerPassword">Password</label>
-                            <input type="password" id="registerPassword"
-                                placeholder="Create a password (min 6 characters)" required minlength="6">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="registerPassword"
+                                    placeholder="Create a password (min 6 characters)" required minlength="6">
+                                <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')" aria-label="Toggle password visibility">
+                                    <span class="password-toggle-icon">👁️</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label for="registerConfirmPassword">Confirm Password</label>
-                            <input type="password" id="registerConfirmPassword" placeholder="Confirm your password"
-                                required minlength="6">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="registerConfirmPassword" placeholder="Confirm your password"
+                                    required minlength="6">
+                                <button type="button" class="password-toggle" onclick="togglePassword('registerConfirmPassword')" aria-label="Toggle password visibility">
+                                    <span class="password-toggle-icon">👁️</span>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-large">
@@ -348,6 +363,20 @@
         function showRegisterView() {
             document.getElementById('loginView').style.display = 'none';
             document.getElementById('registerView').style.display = 'block';
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.parentElement.querySelector('.password-toggle');
+            const icon = button.querySelector('.password-toggle-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                icon.textContent = '👁️';
+            }
         }
     </script>
 </body>

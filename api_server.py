@@ -1,7 +1,4 @@
-"""
-Medical Diagnosis System - API Server
-FastAPI server that wraps main.py functionality and provides REST endpoints
-"""
+
 
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -74,9 +71,7 @@ medical_system = MedicalDiagnosisSystem()
 # OAuth2 scheme for token authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login", auto_error=False)
 
-# ============================================
-# Pydantic Models
-# ============================================
+
 
 class UserRegister(BaseModel):
     email: EmailStr
@@ -145,9 +140,7 @@ class HealthRecordCreate(BaseModel):
     weight: Optional[float] = None
     temperature: Optional[float] = None
 
-# ============================================
-# Authentication Helper
-# ============================================
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
     """Get current user from token (email-based for simplicity)"""
@@ -170,9 +163,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
     
     return medical_system.auth_system.users[email]
 
-# ============================================
-# API Endpoints
-# ============================================
+
 
 @app.get("/api")
 async def api_root():

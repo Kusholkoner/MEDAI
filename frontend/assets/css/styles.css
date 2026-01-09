@@ -232,6 +232,40 @@ body::before {
     color: var(--text-muted);
 }
 
+/* Password Input Wrapper */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    padding-right: 3rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-sm);
+}
+
+.password-toggle:hover {
+    background: var(--bg-glass);
+}
+
+.password-toggle-icon {
+    font-size: 1.25rem;
+    user-select: none;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;

@@ -319,13 +319,6 @@ function displayDiagnosisResult(result) {
             ${result.symptoms.map(s => `<span class="badge badge-info">${s}</span>`).join('')}
         </div>
 
-        ${result.ai_analysis ? `
-            <h3 class="mt-3">AI Analysis</h3>
-            <div class="list-item">
-                <p style="white-space: pre-wrap;">${result.ai_analysis}</p>
-            </div>
-        ` : ''}
-
         <div class="alert alert-info mt-3">
             <strong>⚠️ DISCLAIMER:</strong> This is an AI-assisted diagnostic tool. Always consult with a qualified healthcare professional for medical advice.
         </div>
