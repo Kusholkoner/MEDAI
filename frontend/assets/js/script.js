@@ -748,7 +748,7 @@ async function loadStatistics() {
 
         document.getElementById('statTotalUsers').textContent = stats.user.total_users;
         document.getElementById('statLoginCount').textContent = stats.user.login_count;
-        document.getElementById('statLastLogin').textContent = stats.user.registered_on ? new Date(stats.user.registered_on).toLocaleString() : '-';
+        document.getElementById('statLastLogin').textContent = stats.user.last_login ? new Date(stats.user.last_login).toLocaleString() : '-';
         document.getElementById('statRegistered').textContent = stats.user.registered_on ? new Date(stats.user.registered_on).toLocaleDateString() : '-';
 
     } catch (error) {

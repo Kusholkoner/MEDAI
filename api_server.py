@@ -701,6 +701,7 @@ async def get_statistics(current_user: Dict = Depends(get_current_user)):
             "user": {
                 "total_users": len(medical_system.auth_system.users),
                 "login_count": current_user.get('login_count', 0),
+                "last_login": current_user.get('last_login'),
                 "registered_on": current_user.get('registered_on')
             },
             "metrics": stats['metrics']
