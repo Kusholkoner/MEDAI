@@ -376,6 +376,9 @@ class EventsLogger:
     def error(self, message: str, **kwargs):
         self.log("ERROR", message, kwargs)
 
+    def warning(self, message: str, **kwargs):
+        self.log("WARNING", message, kwargs)
+
     def incr(self, metric_name: str, amount: int = 1):
         self.metrics[metric_name] = self.metrics.get(metric_name, 0) + amount
 
