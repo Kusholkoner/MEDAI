@@ -26,11 +26,5 @@
             "src": "/(.*)",
             "dest": "api_server_vercel.py"
         }
-    ],
-    "functions": {
-        "api_server_vercel.py": {
-            "memory": 1024,
-            "maxDuration": 10
-        }
-    }
+    ]
 }
