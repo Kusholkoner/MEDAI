@@ -1,13 +1,32 @@
 """
-Vercel API endpoint - Entry point for serverless function
+Minimal Vercel-compatible entry point
 """
-import sys
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 import os
 
-# Add parent directory to path to import api_server_vercel
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Create a simple FastAPI app
+app = FastAPI()
 
-from api_server_vercel import app
+@app.get("/")
+async def root():
+    return {"message": "MEDAI API is running on Vercel"}
 
-# Export the FastAPI app for Vercel
+@app.get("/api")
+async def api_root():
+    return {
+        "message": "MEDAI API",
+        "version": "2.0.0",
+        "status": "healthy"
+    }
+
+@app.get("/api/health")
+async def health():
+    return {
+        "status": "healthy",
+        "supabase": os.getenv("SUPABASE_URL") is not None,
+        "gemini": os.getenv("GOOGLE_API_KEY") is not None
+    }
+
+# Vercel handler
 handler = app
