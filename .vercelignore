@@ -23,3 +23,7 @@ fix_*.py
 seed_*.py
 *.ps1
 SETUP.md
+main.py
+api_server.py
+requirements.txt
+README.md
