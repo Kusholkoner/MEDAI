@@ -1,20 +1,23 @@
 """
 Vercel-optimized API server without heavy ML dependencies.
-This version uses a lightweight disease database and relies on Gemini AI for diagnosis.
+This version uses Gemini AI for diagnosis and is compatible with Vercel's serverless functions.
 """
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
-import json
 
 # Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
 
 # Initialize Supabase
 SUPABASE_AVAILABLE = False
@@ -28,9 +31,8 @@ try:
     if supabase_url and supabase_key:
         supabase: Client = create_client(supabase_url, supabase_key)
         SUPABASE_AVAILABLE = True
-        print("✅ Supabase connected")
 except Exception as e:
-    print(f"⚠️ Supabase not available: {e}")
+    print(f"Supabase init error: {e}")
 
 # Initialize Gemini AI
 GEMINI_AVAILABLE = False
@@ -44,21 +46,20 @@ try:
         genai.configure(api_key=google_api_key)
         model = genai.GenerativeModel('gemini-pro')
         GEMINI_AVAILABLE = True
-        print("✅ Gemini AI connected")
 except Exception as e:
-    print(f"⚠️ Gemini AI not available: {e}")
+    print(f"Gemini init error: {e}")
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="MEDAI - Medical Diagnosis System",
-    description="AI-powered medical diagnosis and healthcare management",
+    title="MEDAI",
+    description="AI-powered medical diagnosis system",
     version="2.0.0"
 )
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update with your domain in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -87,13 +88,13 @@ class SimpleLogger:
         self.metrics = {}
     
     def info(self, msg, **kwargs):
-        print(f"INFO: {msg}", kwargs)
+        pass
     
     def error(self, msg, **kwargs):
-        print(f"ERROR: {msg}", kwargs)
+        print(f"ERROR: {msg}")
     
     def warning(self, msg, **kwargs):
-        print(f"WARNING: {msg}", kwargs)
+        pass
     
     def incr(self, metric):
         self.metrics[metric] = self.metrics.get(metric, 0) + 1
@@ -107,7 +108,6 @@ logger = SimpleLogger()
 users_cache = {}
 
 # OAuth2 scheme
-from fastapi.security import OAuth2PasswordBearer
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login", auto_error=False)
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
@@ -126,36 +126,53 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
     
     return users_cache[token]
 
+# Helper function to serve files
+def serve_file(filepath: str):
+    """Serve a file if it exists"""
+    try:
+        if os.path.exists(filepath):
+            return FileResponse(filepath)
+        else:
+            return JSONResponse(
+                status_code=404,
+                content={"error": f"File not found: {filepath}"}
+            )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
 # Serve static files
-@app.get("/", response_class=FileResponse)
+@app.get("/")
 async def serve_index():
     """Serve the login page"""
-    return FileResponse(os.path.join(BASE_DIR, "frontend", "pages", "index.html"))
+    return serve_file(os.path.join(BASE_DIR, "frontend", "pages", "index.html"))
 
-@app.get("/dashboard.html", response_class=FileResponse)
+@app.get("/dashboard.html")
 async def serve_dashboard():
     """Serve the dashboard page"""
-    return FileResponse(os.path.join(BASE_DIR, "frontend", "pages", "dashboard.html"))
+    return serve_file(os.path.join(BASE_DIR, "frontend", "pages", "dashboard.html"))
 
-@app.get("/assets/js/script.js", response_class=FileResponse)
+@app.get("/assets/js/script.js")
 async def serve_script():
     """Serve JavaScript file"""
-    return FileResponse(os.path.join(BASE_DIR, "frontend", "assets", "js", "script.js"))
+    return serve_file(os.path.join(BASE_DIR, "frontend", "assets", "js", "script.js"))
 
-@app.get("/assets/css/styles.css", response_class=FileResponse)
+@app.get("/assets/css/styles.css")
 async def serve_styles():
     """Serve CSS file"""
-    return FileResponse(os.path.join(BASE_DIR, "frontend", "assets", "css", "styles.css"))
+    return serve_file(os.path.join(BASE_DIR, "frontend", "assets", "css", "styles.css"))
 
 # API Endpoints
 @app.get("/api")
 async def api_root():
     """API root endpoint"""
     return {
-        "message": "MEDAI - Medical Diagnosis System API",
+        "message": "MEDAI API",
         "version": "2.0.0",
-        "supabase_connected": SUPABASE_AVAILABLE,
-        "gemini_connected": GEMINI_AVAILABLE
+        "supabase": SUPABASE_AVAILABLE,
+        "gemini": GEMINI_AVAILABLE
     }
 
 @app.get("/api/health")
@@ -201,7 +218,6 @@ async def register(user: UserRegister):
         # Save to Supabase
         if SUPABASE_AVAILABLE and supabase:
             supabase.table('users').insert(user_data).execute()
-            logger.info("User registered", email=user.email)
         
         # Cache user
         users_cache[user.email] = user_data
@@ -260,8 +276,6 @@ async def login(user: UserLogin):
         # Cache user
         users_cache[user.email] = user_data
         
-        logger.info("User logged in", email=user.email)
-        
         # Return user data and token
         response_data = {k: v for k, v in user_data.items() if k != 'password_hash'}
         return {
@@ -317,7 +331,7 @@ Format your response as JSON with keys: disease, confidence, description, precau
         response = model.generate_content(prompt)
         ai_analysis = response.text
         
-        # Parse AI response (basic parsing)
+        # Parse AI response
         result = {
             'timestamp': datetime.now().isoformat(),
             'symptoms': request.symptoms.split(','),
@@ -455,5 +469,5 @@ async def get_statistics(current_user: Dict = Depends(get_current_user)):
             detail=str(e)
         )
 
-# Vercel serverless function handler
-app = app
+# Vercel handler
+handler = app

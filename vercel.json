@@ -3,25 +3,10 @@
     "builds": [
         {
             "src": "api_server_vercel.py",
-            "use": "@vercel/python",
-            "config": {
-                "maxLambdaSize": "50mb"
-            }
+            "use": "@vercel/python"
         }
     ],
     "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "api_server_vercel.py"
-        },
-        {
-            "src": "/assets/(.*)",
-            "dest": "api_server_vercel.py"
-        },
-        {
-            "src": "/dashboard.html",
-            "dest": "api_server_vercel.py"
-        },
         {
             "src": "/(.*)",
             "dest": "api_server_vercel.py"
