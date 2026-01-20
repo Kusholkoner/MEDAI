@@ -65,11 +65,22 @@ async def serve_styles():
     """Serve CSS file"""
     return FileResponse(os.path.join(BASE_DIR, "frontend", "assets", "css", "styles.css"))
 
-# Initialize system components
-medical_system = MedicalDiagnosisSystem()
+# Initialize system components with error handling
+medical_system = None
+
+try:
+    medical_system = MedicalDiagnosisSystem()
+    print("✅ Medical system initialized successfully")
+except Exception as e:
+    print(f"⚠️ Warning: Medical system initialization failed: {e}")
+    print("⚠️ Some features may be unavailable. Check environment variables.")
+    # Create a minimal fallback - we'll handle None checks in endpoints
+    medical_system = None
 
 # OAuth2 scheme for token authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login", auto_error=False)
+
+
 
 
 
@@ -152,6 +163,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    # Check if medical system is initialized
+    if medical_system is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="System initializing, please try again"
+        )
+    
     # Simple token = email for now (in production, use JWT)
     email = token
     
@@ -163,6 +181,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
         )
     
     return medical_system.auth_system.users[email]
+
+
+def check_system_ready():
+    """Check if medical system is initialized"""
+    if medical_system is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="System is still initializing. Please check environment variables and try again."
+        )
+
 
 
 
@@ -177,9 +205,10 @@ async def api_root():
 
 @app.get("/api/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - always returns 200 for Railway"""
     return {
         "status": "healthy",
+        "medical_system_ready": medical_system is not None,
         "supabase": SUPABASE_AVAILABLE,
         "timestamp": datetime.now().isoformat()
     }
@@ -191,6 +220,8 @@ async def health_check():
 @app.post("/api/auth/register", response_model=UserResponse)
 async def register(user: UserRegister):
     """Register a new user"""
+    check_system_ready()  # Ensure system is initialized
+    
     try:
         # Check if user already exists in memory
         if user.email in medical_system.auth_system.users:
@@ -261,6 +292,8 @@ async def register(user: UserRegister):
 @app.post("/api/auth/login")
 async def login(user: UserLogin):
     """Login user and return token"""
+    check_system_ready()  # Ensure system is initialized
+    
     try:
         # Check if user exists
         if user.email not in medical_system.auth_system.users:
