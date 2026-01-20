@@ -1,0 +1,44 @@
+# Python dependencies
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+
+# Local development
+.env
+*.log
+.DS_Store
+
+# Test files
+test_*.py
+*_test.py
+add_user_test*.py
+quick_fix_*.py
+fix_*.py
+seed_*.py
+
+# Windows
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (optional - remove if you want to include)
+README.md
+SETUP.md
+
+# PowerShell scripts
+*.ps1
