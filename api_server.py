@@ -102,6 +102,7 @@ class DiagnosisResponse(BaseModel):
     info: Dict[str, Any]
     is_emergency: bool
     ai_analysis: Optional[str] = None
+    alternative_diagnoses: Optional[List[Dict[str, Any]]] = None
 
 class AppointmentCreate(BaseModel):
     age: str
@@ -191,18 +192,30 @@ async def health_check():
 async def register(user: UserRegister):
     """Register a new user"""
     try:
-        # Check if user already exists
+        # Check if user already exists in memory
         if user.email in medical_system.auth_system.users:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="User already exists"
             )
         
+        # Check if user exists in Supabase
+        if SUPABASE_AVAILABLE and supabase:
+            try:
+                existing = supabase.table('users').select('email').eq('email', user.email).execute()
+                if existing.data and len(existing.data) > 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="User already exists in database"
+                    )
+            except Exception as e:
+                logger.warning("Could not check existing user in Supabase", error=str(e))
+        
         # Hash password
         import bcrypt
         password_hash = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
-        # Create user
+        # Create user data
         user_data = {
             'email': user.email,
             'name': user.name,
@@ -214,29 +227,35 @@ async def register(user: UserRegister):
             'last_login': datetime.now().isoformat()
         }
         
+        # Save to memory first
         medical_system.auth_system.users[user.email] = user_data
-        # Persist the single user to Supabase if available, otherwise keep in-memory
+        
+        # Persist to Supabase if available
         if SUPABASE_AVAILABLE and supabase:
             try:
-                medical_system.auth_system.save_user(user_data)
+                logger.info("Attempting to save user to Supabase", email=user.email)
+                result = supabase.table('users').insert(user_data).execute()
+                logger.info("User saved to Supabase successfully", email=user.email, result=str(result))
             except Exception as e:
-                logger.error("Failed to save user to database on register", error=str(e))
-                # Fall back to in-memory storage (already set)
+                logger.error("Failed to save user to Supabase", error=str(e), error_type=type(e).__name__)
+                # Don't fail registration if Supabase save fails - user is still in memory
+                print(f"⚠️ Warning: User registered in memory but failed to save to Supabase: {str(e)}")
         else:
-            # In-memory save (no-op beyond assignment above)
-            pass
+            logger.warning("Supabase not available - user saved to memory only")
         
-        logger.info("User registered", email=user.email)
+        logger.info("User registered successfully", email=user.email)
         
         # Return user data without password hash
         response_data = {k: v for k, v in user_data.items() if k != 'password_hash'}
         return response_data
         
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error("Registration failed", error=str(e))
+        logger.error("Registration failed", error=str(e), error_type=type(e).__name__)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail=f"Registration failed: {str(e)}"
         )
 
 @app.post("/api/auth/login")
@@ -367,6 +386,17 @@ async def diagnose_symptoms(
         
         logger.incr("api_diagnoses")
         
+        # Prepare alternative diagnoses with full disease info
+        alternative_diagnoses = []
+        for alt in result.get('alternative_diagnoses', []):
+            alt_disease_info = medical_system.db.get_disease_info(alt['disease'])
+            alternative_diagnoses.append({
+                'disease': alt['disease'],
+                'confidence': alt['confidence'],
+                'info': alt_disease_info,
+                'is_emergency': medical_system.db.is_emergency(alt['disease'])
+            })
+        
         return {
             'timestamp': result['timestamp'],
             'symptoms': result['input_symptoms'],
@@ -374,7 +404,8 @@ async def diagnose_symptoms(
             'confidence': result['primary_diagnosis']['confidence'],
             'info': result['primary_diagnosis']['info'],
             'is_emergency': result['primary_diagnosis']['is_emergency'],
-            'ai_analysis': result.get('ai_analysis')
+            'ai_analysis': result.get('ai_analysis'),
+            'alternative_diagnoses': alternative_diagnoses
         }
         
     except HTTPException:

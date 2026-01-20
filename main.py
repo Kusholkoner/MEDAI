@@ -966,7 +966,12 @@ class MedicalDiagnosisSystem:
     
     def parse_symptoms(self, symptom_input: str) -> List[str]:
         """Parse symptom input from user"""
-        symptoms = [s.strip().lower() for s in symptom_input.split(',')]
+        # Remove quotation marks (both single and double) that users might accidentally include
+        symptom_input = symptom_input.replace('"', '').replace("'", '')
+        
+        # Split by comma and clean up each symptom
+        symptoms = [s.strip().lower() for s in symptom_input.split(',') if s.strip()]
+        
         return symptoms
     
     def match_symptom(self, user_symptom: str, db_symptom: str) -> bool:

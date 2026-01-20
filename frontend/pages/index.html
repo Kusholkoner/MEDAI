@@ -8,17 +8,7 @@
     <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
 
-<body class="login-page">
-    <!-- Theme Toggle -->
-    <div class="theme-toggle">
-        <span class="theme-toggle-label">Dark</span>
-        <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
-            <span class="theme-toggle-slider">
-                <span class="theme-toggle-icon">🌙</span>
-            </span>
-        </button>
-        <span class="theme-toggle-label">Light</span>
-    </div>
+<body class="login-page" data-theme="light">
 
     <div class="login-container">
         <div class="login-card">
@@ -55,7 +45,8 @@
                             <div class="password-input-wrapper">
                                 <input type="password" id="loginPassword" placeholder="Enter your password" required
                                     minlength="6">
-                                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')" aria-label="Toggle password visibility">
+                                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')"
+                                    aria-label="Toggle password visibility">
                                     <span class="password-toggle-icon">👁️</span>
                                 </button>
                             </div>
@@ -114,7 +105,9 @@
                             <div class="password-input-wrapper">
                                 <input type="password" id="registerPassword"
                                     placeholder="Create a password (min 6 characters)" required minlength="6">
-                                <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')" aria-label="Toggle password visibility">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('registerPassword')"
+                                    aria-label="Toggle password visibility">
                                     <span class="password-toggle-icon">👁️</span>
                                 </button>
                             </div>
@@ -125,7 +118,9 @@
                             <div class="password-input-wrapper">
                                 <input type="password" id="registerConfirmPassword" placeholder="Confirm your password"
                                     required minlength="6">
-                                <button type="button" class="password-toggle" onclick="togglePassword('registerConfirmPassword')" aria-label="Toggle password visibility">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('registerConfirmPassword')"
+                                    aria-label="Toggle password visibility">
                                     <span class="password-toggle-icon">👁️</span>
                                 </button>
                             </div>
@@ -210,47 +205,8 @@
 
     <script src="../assets/js/script.js"></script>
     <script>
-        // Theme Toggle Functionality
-        (function () {
-            const themeToggle = document.getElementById('themeToggle');
-            const html = document.documentElement;
-
-            if (!themeToggle) return;
-
-            // Update toggle position based on theme
-            function updateToggleIcon() {
-                const currentTheme = html.getAttribute('data-theme') || 'dark';
-                const icon = themeToggle.querySelector('.theme-toggle-icon');
-                if (icon) {
-                    icon.textContent = currentTheme === 'light' ? '☀️' : '🌙';
-                }
-                // Update labels
-                const labels = document.querySelectorAll('.theme-toggle-label');
-                labels.forEach((label, index) => {
-                    if (currentTheme === 'light') {
-                        label.textContent = index === 0 ? 'Light' : 'Dark';
-                    } else {
-                        label.textContent = index === 0 ? 'Dark' : 'Light';
-                    }
-                });
-            }
-
-            // Get saved theme or default to dark
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            html.setAttribute('data-theme', savedTheme);
-            updateToggleIcon();
-
-            // Toggle theme
-            themeToggle.addEventListener('click', function () {
-                const currentTheme = html.getAttribute('data-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-                html.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-
-                updateToggleIcon();
-            });
-        })();
+        // Set permanent light theme
+        document.documentElement.setAttribute('data-theme', 'light');
 
         // Note: `API_BASE_URL` is defined in `script.js` to avoid duplicate declarations
 
@@ -369,7 +325,7 @@
             const input = document.getElementById(inputId);
             const button = input.parentElement.querySelector('.password-toggle');
             const icon = button.querySelector('.password-toggle-icon');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.textContent = '🙈';

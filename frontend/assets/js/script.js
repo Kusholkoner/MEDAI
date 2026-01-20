@@ -65,9 +65,8 @@ async function apiCall(endpoint, options = {}) {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    // Set permanent light theme
+    document.documentElement.setAttribute('data-theme', 'light');
 
     // Check if user is logged in
     if (authToken && !window.location.pathname.includes('index.html')) {
@@ -301,6 +300,29 @@ function displayDiagnosisResult(result) {
 
     const isEmergency = result.is_emergency;
 
+    // Build alternative diagnoses HTML if available
+    let alternativesHTML = '';
+    if (result.alternative_diagnoses && result.alternative_diagnoses.length > 0) {
+        alternativesHTML = `
+            <h3 class="mt-4">Other Possible Diagnoses</h3>
+            <p class="text-muted">Based on your symptoms, here are other possible conditions:</p>
+            <div class="grid grid-2" style="gap: 1rem;">
+                ${result.alternative_diagnoses.map(alt => `
+                    <div class="list-item" style="border-left: 3px solid ${alt.is_emergency ? '#ef4444' : '#667eea'};">
+                        <div class="flex-between" style="align-items: flex-start;">
+                            <h4 style="margin: 0;">${alt.disease}</h4>
+                            ${alt.is_emergency ? '<span class="badge badge-danger">Emergency</span>' : ''}
+                        </div>
+                        <p style="margin-top: 0.5rem;"><strong>Confidence:</strong> ${(alt.confidence * 100).toFixed(1)}%</p>
+                        <p><strong>Description:</strong> ${alt.info.description || 'N/A'}</p>
+                        <p><strong>Severity:</strong> ${alt.info.severity || 'N/A'}</p>
+                        <p><strong>Treatment:</strong> ${alt.info.treatment || 'N/A'}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
     contentDiv.innerHTML = `
         ${isEmergency ? '<div class="alert alert-danger"><strong>🚨 EMERGENCY - IMMEDIATE MEDICAL ATTENTION REQUIRED!</strong></div>' : ''}
         
@@ -318,6 +340,8 @@ function displayDiagnosisResult(result) {
         <div class="flex gap-2" style="flex-wrap: wrap;">
             ${result.symptoms.map(s => `<span class="badge badge-info">${s}</span>`).join('')}
         </div>
+
+        ${alternativesHTML}
 
         <div class="alert alert-info mt-3">
             <strong>⚠️ DISCLAIMER:</strong> This is an AI-assisted diagnostic tool. Always consult with a qualified healthcare professional for medical advice.
@@ -340,29 +364,39 @@ async function loadDiagnosisHistory() {
         const diagnoses = await apiCall('/diagnosis/history');
 
         const container = document.getElementById('diagnosisHistoryList');
-        if (diagnoses.length === 0) {
+        if (!diagnoses || diagnoses.length === 0) {
             container.innerHTML = '<p class="text-muted">No diagnosis history yet</p>';
             return;
         }
 
-        container.innerHTML = diagnoses.slice(-10).reverse().map(diag => `
+        container.innerHTML = diagnoses.slice(-10).reverse().map(diag => {
+            // Handle both old and new data structures
+            const disease = diag.primary_diagnosis?.disease || diag.primary_diagnosis || 'Unknown';
+            const confidence = diag.primary_diagnosis?.confidence || 0;
+            const timestamp = diag.timestamp || new Date().toISOString();
+            const symptoms = diag.input_symptoms || [];
+            const isEmergency = diag.primary_diagnosis?.is_emergency || false;
+
+            return `
             <div class="list-item">
                 <div class="flex-between">
                     <div>
-                        <h4>${diag.primary_diagnosis.disease}</h4>
-                        <p><strong>Date:</strong> ${new Date(diag.timestamp).toLocaleString()}</p>
-                        <p><strong>Confidence:</strong> ${(diag.primary_diagnosis.confidence * 100).toFixed(1)}%</p>
-                        <p><strong>Symptoms:</strong> ${diag.input_symptoms.join(', ')}</p>
+                        <h4>${disease}</h4>
+                        <p><strong>Date:</strong> ${new Date(timestamp).toLocaleString()}</p>
+                        <p><strong>Confidence:</strong> ${(confidence * 100).toFixed(1)}%</p>
+                        <p><strong>Symptoms:</strong> ${Array.isArray(symptoms) ? symptoms.join(', ') : symptoms}</p>
                     </div>
                     <div>
-                        ${diag.primary_diagnosis.is_emergency ? '<span class="badge badge-danger">Emergency</span>' : '<span class="badge badge-success">Non-Emergency</span>'}
+                        ${isEmergency ? '<span class="badge badge-danger">Emergency</span>' : '<span class="badge badge-success">Non-Emergency</span>'}
                     </div>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
     } catch (error) {
         console.error('Failed to load diagnosis history:', error);
+        const container = document.getElementById('diagnosisHistoryList');
+        container.innerHTML = '<p class="text-muted">Failed to load diagnosis history. Please try again later.</p>';
     }
 }
 
