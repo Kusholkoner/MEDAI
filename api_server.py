@@ -222,25 +222,21 @@ async def register(user: UserRegister):
     """Register a new user"""
     check_system_ready()  # Ensure system is initialized
     
+    # Require Supabase for registration
+    if not SUPABASE_AVAILABLE or not supabase:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable. Cannot register users at this time."
+        )
+    
     try:
-        # Check if user already exists in memory
-        if user.email in medical_system.auth_system.users:
+        # Check if user already exists in Supabase (primary source of truth)
+        existing = supabase.table('users').select('email').eq('email', user.email).execute()
+        if existing.data and len(existing.data) > 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User already exists"
+                detail="User already exists. Please login instead."
             )
-        
-        # Check if user exists in Supabase
-        if SUPABASE_AVAILABLE and supabase:
-            try:
-                existing = supabase.table('users').select('email').eq('email', user.email).execute()
-                if existing.data and len(existing.data) > 0:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="User already exists in database"
-                    )
-            except Exception as e:
-                logger.warning("Could not check existing user in Supabase", error=str(e))
         
         # Hash password
         import bcrypt
@@ -254,25 +250,60 @@ async def register(user: UserRegister):
             'password_hash': password_hash,
             'user_type': 'patient',
             'registered_on': datetime.now().isoformat(),
-            'login_count': 1,
-            'last_login': datetime.now().isoformat()
+            'login_count': 0,  # Start at 0, will increment on first login
+            'last_login': None
         }
         
-        # Save to memory first
-        medical_system.auth_system.users[user.email] = user_data
+        # Save to Supabase FIRST with retry logic
+        max_retries = 3
+        retry_count = 0
+        insert_successful = False
+        last_error = None
         
-        # Persist to Supabase if available
-        if SUPABASE_AVAILABLE and supabase:
+        while retry_count < max_retries and not insert_successful:
             try:
-                logger.info("Attempting to save user to Supabase", email=user.email)
+                logger.info(f"Attempting to save user to Supabase (attempt {retry_count + 1}/{max_retries})", email=user.email)
+                
+                # Insert into Supabase
                 result = supabase.table('users').insert(user_data).execute()
-                logger.info("User saved to Supabase successfully", email=user.email, result=str(result))
+                
+                # Verify the insert worked by checking if data was returned
+                if not result.data or len(result.data) == 0:
+                    raise Exception("Insert returned no data - verification failed")
+                
+                logger.info("User saved to Supabase successfully", email=user.email, result_count=len(result.data))
+                
+                # Double-check by querying the database
+                verify = supabase.table('users').select('email').eq('email', user.email).execute()
+                if not verify.data or len(verify.data) == 0:
+                    raise Exception("User insert verification query failed - user not found in database")
+                
+                logger.info("User verified in Supabase", email=user.email)
+                insert_successful = True
+                
             except Exception as e:
-                logger.error("Failed to save user to Supabase", error=str(e), error_type=type(e).__name__)
-                # Don't fail registration if Supabase save fails - user is still in memory
-                print(f"⚠️ Warning: User registered in memory but failed to save to Supabase: {str(e)}")
-        else:
-            logger.warning("Supabase not available - user saved to memory only")
+                retry_count += 1
+                last_error = e
+                logger.warning(f"Registration attempt {retry_count} failed", error=str(e), error_type=type(e).__name__)
+                
+                if retry_count < max_retries:
+                    # Wait before retrying (exponential backoff)
+                    import time
+                    wait_time = 0.5 * (2 ** (retry_count - 1))  # 0.5s, 1s, 2s
+                    logger.info(f"Waiting {wait_time}s before retry...")
+                    time.sleep(wait_time)
+        
+        # If all retries failed, raise error
+        if not insert_successful:
+            logger.error("All registration attempts failed", email=user.email, error=str(last_error))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to register user after {max_retries} attempts. Please try again later. Error: {str(last_error)}"
+            )
+        
+        # Only add to memory AFTER successful database insert
+        medical_system.auth_system.users[user.email] = user_data
+        logger.info("User added to memory cache", email=user.email)
         
         logger.info("User registered successfully", email=user.email)
         
@@ -283,51 +314,94 @@ async def register(user: UserRegister):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Registration failed", error=str(e), error_type=type(e).__name__)
+        logger.error("Registration failed with unexpected error", error=str(e), error_type=type(e).__name__)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Registration failed: {str(e)}"
         )
+
 
 @app.post("/api/auth/login")
 async def login(user: UserLogin):
     """Login user and return token"""
     check_system_ready()  # Ensure system is initialized
     
+    # Require Supabase for login
+    if not SUPABASE_AVAILABLE or not supabase:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable. Cannot login at this time."
+        )
+    
     try:
-        # Check if user exists
-        if user.email not in medical_system.auth_system.users:
+        # Reload user from Supabase (in case they just registered)
+        logger.info("Fetching user from Supabase", email=user.email)
+        db_user_result = supabase.table('users').select('*').eq('email', user.email).execute()
+        
+        if not db_user_result.data or len(db_user_result.data) == 0:
+            logger.warning("User not found in database", email=user.email)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found. Please register first."
+                detail="Account not found. Please register first."
             )
         
-        # Get user data
-        user_data = medical_system.auth_system.users[user.email]
+        
+        # Get user data from database
+        user_data = db_user_result.data[0]
+        logger.info("User found in database", email=user.email)
+        
+        # Update memory cache with latest data from database
+        medical_system.auth_system.users[user.email] = user_data
+        
+        # Verify password hash exists
+        import bcrypt
+        password_hash = user_data.get('password_hash')
+        
+        if not password_hash or password_hash is None:
+            logger.error("No password hash found for user", email=user.email)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Account created before password system was enabled. Please contact support or re-register with a different email."
+            )
+        
+        # Encode password hash
+        try:
+            stored_hash = password_hash.encode('utf-8')
+        except Exception as e:
+            logger.error("Error encoding password hash", email=user.email, error=str(e))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Account data corrupted. Please contact support."
+            )
         
         # Verify password
-        import bcrypt
-        stored_hash = user_data.get('password_hash', '').encode('utf-8')
-        if not stored_hash or not bcrypt.checkpw(user.password.encode('utf-8'), stored_hash):
+        if not bcrypt.checkpw(user.password.encode('utf-8'), stored_hash):
+            logger.warning("Incorrect password attempt", email=user.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect password"
+                detail="Incorrect password. Please try again."
             )
+
         
-        # Update login count
+        # Update login count and last login time
         user_data['login_count'] = user_data.get('login_count', 0) + 1
         user_data['last_login'] = datetime.now().isoformat()
-        # Persist update to Supabase if available
-        if SUPABASE_AVAILABLE and supabase:
-            try:
-                medical_system.auth_system.save_user(user_data)
-            except Exception as e:
-                logger.error("Failed to save user to database on login", error=str(e))
-        else:
-            # In-memory only
-            medical_system.auth_system.users[user.email] = user_data
         
-        logger.info("User logged in", email=user.email)
+        # Save updated login info to Supabase
+        try:
+            supabase.table('users').update({
+                'login_count': user_data['login_count'],
+                'last_login': user_data['last_login']
+            }).eq('email', user.email).execute()
+            logger.info("Login count updated in database", email=user.email, count=user_data['login_count'])
+        except Exception as e:
+            logger.error("Failed to update login count in database", error=str(e))
+            # Don't fail login if update fails
+        
+        # Update memory cache
+        medical_system.auth_system.users[user.email] = user_data
+        
+        logger.info("User logged in successfully", email=user.email, login_count=user_data['login_count'])
         
         # Return user data and token (token = email for simplicity)
         response_data = {k: v for k, v in user_data.items() if k != 'password_hash'}
@@ -340,11 +414,12 @@ async def login(user: UserLogin):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Login failed", error=str(e))
+        logger.error("Login failed with unexpected error", error=str(e), error_type=type(e).__name__)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail=f"Login failed: {str(e)}"
         )
+
 
 @app.get("/api/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: Dict = Depends(get_current_user)):

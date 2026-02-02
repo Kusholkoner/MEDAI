@@ -1,0 +1,18 @@
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:492", "message": "load_disease_data called", "data": {"supabase_available": true}, "timestamp": 1769409250576}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:498", "message": "Querying Supabase diseases table", "data": {}, "timestamp": 1769409250577}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:501", "message": "Supabase diseases query successful", "data": {"disease_count": 29}, "timestamp": 1769409250926}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:492", "message": "load_disease_data called", "data": {"supabase_available": true}, "timestamp": 1769409256360}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:498", "message": "Querying Supabase diseases table", "data": {}, "timestamp": 1769409256363}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:501", "message": "Supabase diseases query successful", "data": {"disease_count": 29}, "timestamp": 1769409257109}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:492", "message": "load_disease_data called", "data": {"supabase_available": true}, "timestamp": 1769409257885}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:498", "message": "Querying Supabase diseases table", "data": {}, "timestamp": 1769409257885}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:501", "message": "Supabase diseases query successful", "data": {"disease_count": 29}, "timestamp": 1769409258390}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:492", "message": "load_disease_data called", "data": {"supabase_available": true}, "timestamp": 1769409385006}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:498", "message": "Querying Supabase diseases table", "data": {}, "timestamp": 1769409385007}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:501", "message": "Supabase diseases query successful", "data": {"disease_count": 29}, "timestamp": 1769409385292}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:492", "message": "load_disease_data called", "data": {"supabase_available": true}, "timestamp": 1769409390640}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:498", "message": "Querying Supabase diseases table", "data": {}, "timestamp": 1769409390640}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:501", "message": "Supabase diseases query successful", "data": {"disease_count": 29}, "timestamp": 1769409390910}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:492", "message": "load_disease_data called", "data": {"supabase_available": true}, "timestamp": 1769409391547}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:498", "message": "Querying Supabase diseases table", "data": {}, "timestamp": 1769409391547}
+{"sessionId": "debug-session", "runId": "init", "hypothesisId": "H", "location": "main.py:501", "message": "Supabase diseases query successful", "data": {"disease_count": 29}, "timestamp": 1769409392151}

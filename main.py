@@ -41,81 +41,41 @@ SUPABASE_AVAILABLE = False
 supabase = None
 
 try:
-    # #region agent log
-    with open(LOG_FILE, 'a', encoding='utf-8') as f:
-        import json
-        import time
-        f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"A","location":"main.py:67","message":"Attempting Supabase import","data":{"supabase_url_set":SUPABASE_URL!='YOUR_SUPABASE_URL',"supabase_key_set":SUPABASE_KEY!='YOUR_SUPABASE_KEY'},"timestamp":int(time.time()*1000)})+'\n')
-    # #endregion
+    # Initialize Supabase Client
     from supabase import create_client, Client
-    # #region agent log
-    with open(LOG_FILE, 'a', encoding='utf-8') as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"A","location":"main.py:72","message":"Supabase library imported successfully","data":{},"timestamp":int(time.time()*1000)})+'\n')
-    # #endregion
     
     # Get Supabase credentials from environment or use config
     supabase_url = os.getenv("SUPABASE_URL", SUPABASE_URL)
     supabase_key = os.getenv("SUPABASE_KEY", SUPABASE_KEY)
     
-    # #region agent log
-    with open(LOG_FILE, 'a', encoding='utf-8') as f:
-        f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"B","location":"main.py:78","message":"Supabase credentials check","data":{"url_from_env":os.getenv("SUPABASE_URL") is not None,"key_from_env":os.getenv("SUPABASE_KEY") is not None,"url_is_placeholder":supabase_url=='YOUR_SUPABASE_URL',"key_is_placeholder":supabase_key=='YOUR_SUPABASE_KEY'},"timestamp":int(time.time()*1000)})+'\n')
-    # #endregion
+    print(f"DEBUG: URL present: {bool(supabase_url)}")
+    print(f"DEBUG: Key present: {bool(supabase_key)}")
+    if supabase_url: print(f"DEBUG: URL value: {supabase_url[:10]}...")
+    if supabase_key: print(f"DEBUG: Key value: {supabase_key[:5]}...")
     
-    if supabase_url and supabase_key and supabase_url != 'YOUR_SUPABASE_URL' and supabase_key != 'YOUR_SUPABASE_KEY' and supabase_url.strip() and supabase_key.strip():
-        supabase: Client = create_client(supabase_url, supabase_key)
-        # #region agent log
-        with open(LOG_FILE, 'a', encoding='utf-8') as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"C","location":"main.py:85","message":"Supabase client created","data":{"url_length":len(supabase_url),"key_length":len(supabase_key)},"timestamp":int(time.time()*1000)})+'\n')
-        # #endregion
-        
-        # Test connection by querying a table (this will fail gracefully if tables don't exist)
+    print(f"DEBUG: URL={supabase_url} KEY={'Found' if supabase_key else 'Missing'}")
+
+    if supabase_url and supabase_key and "YOUR_SUPABASE" not in supabase_url:
         try:
-            # #region agent log
-            with open(LOG_FILE, 'a', encoding='utf-8') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"D","location":"main.py:90","message":"Testing Supabase connection","data":{},"timestamp":int(time.time()*1000)})+'\n')
-            # #endregion
-            # Try to access a table to verify connection
-            test_response = supabase.table('doctors').select("id").limit(1).execute()
-            # #region agent log
-            with open(LOG_FILE, 'a', encoding='utf-8') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"D","location":"main.py:95","message":"Supabase connection test successful","data":{"has_data":test_response.data is not None},"timestamp":int(time.time()*1000)})+'\n')
-            # #endregion
-            SUPABASE_AVAILABLE = True
-            print("✅ Supabase connected successfully")
-        except Exception as test_error:
-            # #region agent log
-            with open(LOG_FILE, 'a', encoding='utf-8') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"D","location":"main.py:100","message":"Supabase connection test failed","data":{"error":str(test_error),"error_type":type(test_error).__name__},"timestamp":int(time.time()*1000)})+'\n')
-            # #endregion
-            print(f"⚠️ Supabase client created but connection test failed: {test_error}")
-            print("⚠️ Continuing with fallback data. Make sure your Supabase tables exist.")
-            SUPABASE_AVAILABLE = False
+             supabase: Client = create_client(supabase_url, supabase_key)
+             SUPABASE_AVAILABLE = True
+             print("✅ Supabase connected successfully")
+        except Exception as conn_err:
+             print(f"❌ Connection error: {conn_err}")
+             import traceback
+             traceback.print_exc()
+             SUPABASE_AVAILABLE = False
+             supabase = None
     else:
-        # #region agent log
-        with open(LOG_FILE, 'a', encoding='utf-8') as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"B","location":"main.py:106","message":"Supabase credentials not configured","data":{},"timestamp":int(time.time()*1000)})+'\n')
-        # #endregion
-        print("⚠️ Supabase credentials not configured. Using fallback data.")
-        print("💡 To enable Supabase, set SUPABASE_URL and SUPABASE_KEY in .env file or update the config.")
+        print("⚠️ Supabase credentials not configured or valid.")
+        SUPABASE_AVAILABLE = False
+        supabase = None
 except ImportError as import_error:
-    # #region agent log
-    with open(LOG_FILE, 'a', encoding='utf-8') as f:
-        import json
-        import time
-        f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"A","location":"main.py:111","message":"Supabase library import failed","data":{"error":str(import_error),"error_type":type(import_error).__name__},"timestamp":int(time.time()*1000)})+'\n')
-    # #endregion
     print(f"⚠️ Supabase library not installed: {import_error}")
     print("💡 Install it with: pip install supabase")
     SUPABASE_AVAILABLE = False
     supabase = None
 except Exception as e:
-    # #region agent log
-    with open(LOG_FILE, 'a', encoding='utf-8') as f:
-        import json
-        import time
-        f.write(json.dumps({"sessionId":"debug-session","runId":"init","hypothesisId":"E","location":"main.py:118","message":"Unexpected error initializing Supabase","data":{"error":str(e),"error_type":type(e).__name__},"timestamp":int(time.time()*1000)})+'\n')
-    # #endregion
     print(f"⚠️ Failed to initialize Supabase: {e}")
     SUPABASE_AVAILABLE = False
     supabase = None
@@ -1024,52 +984,10 @@ class MedicalDiagnosisSystem:
                     break
             symptom_vector.append(1 if matched else 0)
         
-        # If no symptoms matched, return error
+        # If no symptoms matched, return None for strict validation
         if sum(symptom_vector) == 0:
-            logger.warning("No symptoms matched", user_symptoms=symptoms, available_symptoms=self.db.all_symptoms[:10])
-            # Try to find best match using word overlap
-            best_match_score = 0
-            best_match_disease = None
-            
-            for disease, info in self.db.disease_data.items():
-                disease_symptoms = [s.lower() for s in info['symptoms']]
-                user_symptoms_lower = [s.lower() for s in symptoms]
-                
-                # Count word overlaps
-                score = 0
-                for user_sym in user_symptoms_lower:
-                    for db_sym in disease_symptoms:
-                        # Check for word-level matches
-                        user_words = set(user_sym.split())
-                        db_words = set(db_sym.split())
-                        common_words = user_words.intersection(db_words)
-                        if common_words:
-                            score += len(common_words)
-                
-                if score > best_match_score:
-                    best_match_score = score
-                    best_match_disease = disease
-            
-            if best_match_disease:
-                disease_info = self.db.get_disease_info(best_match_disease)
-                return {
-                    'primary_prediction': best_match_disease,
-                    'confidence': 0.3,  # Low confidence due to poor match
-                    'all_predictions': [{'disease': best_match_disease, 'confidence': 0.3}],
-                    'matched_symptoms': [],
-                    'is_emergency': self.db.is_emergency(best_match_disease)
-                }
-            else:
-                # Default to first disease if nothing matches (shouldn't happen)
-                first_disease = list(self.db.disease_data.keys())[0]
-                disease_info = self.db.get_disease_info(first_disease)
-                return {
-                    'primary_prediction': first_disease,
-                    'confidence': 0.1,
-                    'all_predictions': [{'disease': first_disease, 'confidence': 0.1}],
-                    'matched_symptoms': [],
-                    'is_emergency': self.db.is_emergency(first_disease)
-                }
+            logger.warning("No symptoms matched", user_symptoms=symptoms)
+            return None
         
         symptom_array = np.array(symptom_vector).reshape(1, -1)
         
@@ -1110,6 +1028,50 @@ class MedicalDiagnosisSystem:
             'is_emergency': self.db.is_emergency(prediction)
         }
     
+    def get_ai_diagnosis(self, symptoms: List[str]) -> Dict:
+        """Get diagnosis directly from Gemini for sparse symptoms (1-2 inputs)"""
+        if not GEMINI_AVAILABLE or not model:
+            return None
+        
+        try:
+            prompt = f"""You are an expert medical diagnostician. A patient has presented with only these symptoms: {', '.join(symptoms)}.
+            
+            This is sparse information, but based on common medical knowledge, what is the SINGLE most likely condition?
+            
+            Return ONLY a raw JSON object (no markdown formatting) with this structure:
+            {{
+                "disease": "Name of the condition",
+                "confidence": 0.85,
+                "reasoning": "Brief explanation of why this is likely given the symptoms",
+                "is_emergency": true/false
+            }}
+            
+            Be realistic about confidence. If it's too vague, return "Viral Infection" or "General Fatigue" with lower confidence.
+            """
+            
+            response = model.generate_content(prompt)
+            text = response.text.replace('```json', '').replace('```', '').strip()
+            
+            import json
+            data = json.loads(text)
+            
+            # Map to internal format structure
+            # Ensure we have a valid confidence float
+            conf = float(data.get('confidence', 0.5))
+            
+            return {
+                'primary_prediction': data.get('disease', 'Unknown'),
+                'confidence': conf,
+                'all_predictions': [{'disease': data.get('disease', 'Unknown'), 'confidence': conf}],
+                'matched_symptoms': symptoms,
+                'is_emergency': data.get('is_emergency', False),
+                'ai_analysis': data.get('reasoning', 'AI formulated diagnosis based on limited symptoms.')
+            }
+            
+        except Exception as e:
+            logger.error("AI Diagnosis failed", error=str(e))
+            return None
+
     def get_gemini_analysis(self, symptoms: List[str], prediction: Dict) -> str:
         """Get AI-powered analysis from Gemini"""
         if not GEMINI_AVAILABLE or not model:
@@ -1166,9 +1128,27 @@ Keep the response concise and professional."""
         if not symptoms:
             return {"error": "No symptoms provided"}
         
+        # Default to rule-based prediction
         prediction = self.predict_disease(symptoms)
+        
+        # Strict validation check
+        if prediction is None:
+            return {"error": "Data not found or pls reenter"}
+        
+        # IMPROVEMENT: If symptoms are sparse (1-2) or rule-based confidence is low, try AI diagnosis
+        if (len(symptoms) <= 2 or prediction['confidence'] < 0.4) and GEMINI_AVAILABLE:
+            logger.info("Using AI diagnosis for sparse/low-confidence input", symptoms=symptoms)
+            ai_prediction = self.get_ai_diagnosis(symptoms)
+            if ai_prediction:
+                prediction = ai_prediction
+        
         disease_info = self.db.get_disease_info(prediction['primary_prediction'])
-        ai_analysis = self.get_gemini_analysis(symptoms, prediction)
+        
+        # If we already have AI analysis from the direct diagnosis, use it, otherwise call gemini analysis
+        if 'ai_analysis' in prediction and prediction['ai_analysis']:
+           ai_analysis = prediction['ai_analysis']
+        else:
+           ai_analysis = self.get_gemini_analysis(symptoms, prediction)
         
         result = {
             'timestamp': datetime.datetime.now().isoformat(),
