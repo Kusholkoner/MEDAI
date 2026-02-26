@@ -5,6 +5,17 @@ MEDAI is an AI-powered medical diagnosis and healthcare management system design
 
 ---
 
+## How It Works?
+
+- **AI Health Assistant** – 24/7 emergency support & predictive health tracking
+- **Ayushman Card Integration** – Instant access to free & subsidized healthcare
+- **QR-Based Health Profile** – One scan for complete medical history
+- **Appointments in Seconds** – Online & in-clinic doctor bookings
+- **FunZone for Health Awareness** – Games, quizzes & tips for better health
+- **Community Feed for Health Discussions** – Connect, ask, & learn from experts
+
+---
+
 ## Real-Life Problems Solved
 
 ### 1. **Limited Access to Medical Expertise**

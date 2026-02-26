@@ -1,0 +1,20 @@
+# Render Blueprint - MEDAI Medical Diagnosis System
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: medai
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api_server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
